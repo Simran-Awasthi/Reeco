@@ -4,8 +4,7 @@ import tw from "twin.macro";
 
 function App() {
   return (
-    <div tw="w-full h-full bg-gray-50 min-h-screen">
-      <Navbar />
+    <div tw="w-full  h-screen bg-gray-50 ">
       <Order />
     </div>
   );

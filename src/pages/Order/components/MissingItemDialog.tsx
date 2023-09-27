@@ -1,6 +1,5 @@
 import {
   AlertDialog,
-  AlertDialogTrigger,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -9,28 +8,76 @@ import {
   AlertDialogTitle,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
-
 import { Button } from "@/components/ui/button";
+import { RootState } from "@/store";
 
-import React from "react";
+import { LuX } from "react-icons/lu";
+import { useDispatch, useSelector } from "react-redux";
+import { setCurrentItem, updateOrderItem } from "../reducers/orderReducer";
+import { trancatedString } from "@/lib/utils";
 
-const MissingItemDialog = () => {
+interface MissingItemDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+const MissingItemDialog = (props: MissingItemDialogProps) => {
+  const orderState = useSelector((state: RootState) => state.order);
+  const dispatch = useDispatch();
+
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant="outline">Show Dialog</Button>
-      </AlertDialogTrigger>
+    <AlertDialog open={props.open} onOpenChange={props.onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogTitle className="w-full  flex justify-between  items-center">
+            Missing Product
+            <Button
+              variant={"ghost"}
+              size="icon"
+              onClick={() => props.onOpenChange(false)}
+            >
+              <LuX />
+            </Button>
+          </AlertDialogTitle>
+
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete your
-            account and remove your data from our servers.
+            is '{trancatedString(orderState.currentItem?.name || "", 30)}'
+            urgent?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Continue</AlertDialogAction>
+          <AlertDialogCancel
+            className=" border-0 text-neutral-800"
+            onClick={() => {
+              dispatch(
+                updateOrderItem({
+                  id: orderState.currentItem?.id || "",
+                  data: {
+                    status: "missing",
+                  },
+                })
+              );
+              dispatch(setCurrentItem(undefined));
+            }}
+          >
+            No
+          </AlertDialogCancel>
+          <AlertDialogAction
+            className=" border-0 text-neutral-800 bg-white hover:bg-neutral-200"
+            onClick={() => {
+              dispatch(
+                updateOrderItem({
+                  id: orderState.currentItem?.id || "",
+                  data: {
+                    status: "missing-urgent",
+                  },
+                })
+              );
+              dispatch(setCurrentItem(undefined));
+            }}
+          >
+            Yes
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
